@@ -1,2 +1,2 @@
-# tigra-rudder
-Project for tigra rudder
+# tigra-steering
+Project for tigra steering
