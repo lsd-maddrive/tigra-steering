@@ -32,10 +32,9 @@ void adcCalibrationCurrentChannel(void)
     adcOffset=adcBuff/ADC_CALLIBRATION_COUNT;
 }
 
-float adcMeasureMotorCurrent(void)
+int16_t adcMeasureMotorCurrent(void)
 {
-    float current = ADC_read(ADC_CURRENT_CHANNEL);
+    int16_t current = ADC_read(ADC_CURRENT_CHANNEL);
     current-=adcOffset;
-    current/=ADC_TO_AMP;
-    return current;
+    return current; 
 }

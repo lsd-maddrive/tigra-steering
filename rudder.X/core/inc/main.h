@@ -40,6 +40,7 @@
 #include <stdlib.h>
 #include <libpic30.h>
 #include <stdint.h>
+#include "string.h"
 
 #include "clock.h"
 #include "adc.h"

@@ -7,7 +7,7 @@
 #define UART2_RX_TRIS TRISCbits.TRISC7
 
 void initUART();
-void uartTransmitt(uint8_t data);
+void uartTransmitt(int32_t data);
 void uartTransmittBuff(uint8_t* data,uint16_t size);
-
+int8_t uartget (void);
 #endif	

@@ -15,7 +15,9 @@ typedef struct
     float outSaturation;
 }PIDHandle_t;
 
-static float fsign(float a);
-
+void PIDClear(PIDHandle_t * PID);
+float f_abs(float a);
+float f_sign(float a);
+float PIDController(PIDHandle_t * PID,float error);
 #endif	/* CONTROLLERS_H */
 

@@ -23,9 +23,17 @@ void PWM_Init( void )
 
 void setMotorPwmDuty(int16_t duty)
 {
-    
+    static Motor_direction_t dir=DIRECTION_IDLE;
     if(duty>0)
     {
+        if(dir==DIRECTION_BACKWARD){
+            H1_PWM=0;
+            H2_PWM=0;
+            L1_RESET;
+            L2_RESET;
+            __delay_us(3);
+        }
+        dir=DIRECTION_FORWARD;
         if(abs(duty)>pwmSaturation)
             H1_PWM=pwmSaturation;
         else
@@ -36,6 +44,14 @@ void setMotorPwmDuty(int16_t duty)
     }
     else if(duty<0)
     {
+        if(dir==DIRECTION_FORWARD){
+            H1_PWM=0;
+            H2_PWM=0;
+            L1_RESET;
+            L2_RESET;
+            __delay_us(3);
+        }
+        dir=DIRECTION_BACKWARD;
         H1_PWM = 0; 
         if(abs(duty)>pwmSaturation)
             H2_PWM = pwmSaturation;
@@ -50,5 +66,6 @@ void setMotorPwmDuty(int16_t duty)
         L2_RESET;
         H1_PWM = 0;
         H2_PWM = 0;
+        dir=DIRECTION_IDLE;
     }
 }

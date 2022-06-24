@@ -1,6 +1,6 @@
 #include "controllers.h"
 
-static float fsign(float a)
+float f_sign(float a)
 {
     if(a>=0)
         return 1;
@@ -8,26 +8,31 @@ static float fsign(float a)
         return -1;
 }
 
+float f_abs(float a)
+{
+    if(a<0) a=-1*a;
+    return a;
+}
+
 
 float PIDController(PIDHandle_t * PID,float error)
 {
-    float deltaError = error - PID->prevError;
+    //float deltaError = error - PID->prevError;
     float controllerOut;
     float integral;
     PID->prevError=error;
     integral=PID->integralTerm*PID->ki;
-    if(fabs(integral)>PID->integralSaturation)
+    PID->integralTerm+=error;
+    if(f_abs(integral)>PID->integralSaturation)
     {
-        integral=fsign(integral)*PID->integralSaturation;
+        integral=f_sign(integral)*PID->integralSaturation;
     }
-    else
+    
+    
+    controllerOut=error*PID->kp+integral;
+    if(f_abs(controllerOut)>PID->outSaturation)
     {
-        PID->integralTerm+=error;
-    }
-    controllerOut=error*PID->kp+integral+deltaError*PID->kd;
-    if(fabs(controllerOut)>PID->outSaturation)
-    {
-        controllerOut=fsign(controllerOut)*PID->outSaturation;
+        controllerOut=f_sign(controllerOut)*PID->outSaturation;
     }
     return controllerOut;
 }

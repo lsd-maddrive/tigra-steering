@@ -1,28 +1,26 @@
 #include "main.h"
 
-unsigned long int sum_i[5];
-unsigned long int sum,sumiddle;
-
-float refCurrent=0;
+float refCurrent=15;
 float refPosition=0;
-
-#define POSITION_LOOP 0
+int8_t receivedangle;
+#define POSITION_LOOP 1
+int16_t meascurrent;
 
 PIDHandle_t currentLoopPID=
 {
-    .kp=20,
-    .ki=5,
+    .kp=250,
+    .ki=2,
     .kd=0,
     .prevError=0,
     .integralTerm=0,
-    .integralSaturation=3000,
+    .integralSaturation=1000,
     .outSaturation=1500
 };
 
 PIDHandle_t positionLoopPID=
 { 
-    .kp=0.6,
-    .ki=0.1,
+    .kp=0.2,
+    .ki=0.008,
     .kd=0,
     .prevError=0,
     .integralTerm=0,
@@ -38,26 +36,36 @@ void setup_tmr1 (void)
     T1CON	 = 0x8000;
   PR1		 = 129;
 }
-
 void __attribute__ ((interrupt,no_auto_psv)) _T1Interrupt (void)
 {
     static uint16_t k=0,c=0,i=0,a=0;
-    float current,currentPosition;
+    float currentPosition;
+    float current_2;
+    float positionError;
+    static int32_t sum,sumiddle;
+    static int32_t sum_i[5];
     int16_t pwmDuty;
-    //бегущее среднее
+    uint8_t transmittData[5];
     k=k+1;
     if(k==500)
     {
         currentPosition=180-(float)(ADC_read(8)*0.08789);
         #if POSITION_LOOP
-        refCurrent=PIDController(&positionLoopPID,refPosition-currentPosition);
+        positionError=refPosition-currentPosition;
+        if(f_abs(positionError)<1.5) 
+        {
+            positionError=0;
+            PIDClear(&positionLoopPID);
+        }
+        refCurrent=PIDController(&positionLoopPID,positionError);
         #endif
         k=0;
     }
     if(i<50)
     {
         i++;
-        sumiddle=ADC_read(ADC_CURRENT_CHANNEL)+sumiddle;
+        meascurrent=adcMeasureMotorCurrent();
+        sumiddle=meascurrent+sumiddle;
     }
     if(i==50)
     {
@@ -74,8 +82,9 @@ void __attribute__ ((interrupt,no_auto_psv)) _T1Interrupt (void)
         {
             sum=sum+sum_i[a];
         }
-        current=sum/ADC_TO_AMP;
-        pwmDuty=(int16_t)PIDController(&currentLoopPID,refCurrent-current);
+        current_2=(float)sum/(ADC_TO_AMP*250);
+        uartTransmitt(sum);
+        pwmDuty=(int16_t)PIDController(&currentLoopPID,(float)(refCurrent-current_2));
         setMotorPwmDuty(pwmDuty);
         sumiddle=0;
         sum=0;
@@ -83,6 +92,11 @@ void __attribute__ ((interrupt,no_auto_psv)) _T1Interrupt (void)
     }
     _T1IF = 0;
 }
+//void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
+//	 receivedangle= U2RXREG;
+//	IFS1bits.U2RXIF = 0;
+//}
+
 
 
 int main() 
@@ -91,10 +105,13 @@ int main()
     CLOCK_Initialize();
     initUART();   
     ADC_init();
+    __delay_ms(100);
     PWM_Init();
+    adcCalibrationCurrentChannel();
     setup_tmr1 ();
+//    setMotorPwmDuty(-1500);
     while(1)    
     {
-        
+            
     }
 }
