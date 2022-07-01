@@ -1,5 +1,5 @@
 #include "motorPwm.h"
-static uint16_t pwmSaturation = 1500;
+static uint16_t pwmSaturation = 5000;
 
 void PWM_Init( void )
 {
@@ -31,7 +31,7 @@ void setMotorPwmDuty(int16_t duty)
             H2_PWM=0;
             L1_RESET;
             L2_RESET;
-            __delay_us(3);
+            __delay_ms(10);
         }
         dir=DIRECTION_FORWARD;
         if(abs(duty)>pwmSaturation)
@@ -49,7 +49,7 @@ void setMotorPwmDuty(int16_t duty)
             H2_PWM=0;
             L1_RESET;
             L2_RESET;
-            __delay_us(3);
+            __delay_ms(10);
         }
         dir=DIRECTION_BACKWARD;
         H1_PWM = 0; 

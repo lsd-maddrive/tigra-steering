@@ -12,7 +12,7 @@
 
 #define ADC_CURRENT_CHANNEL 7
 #define ADC_CALLIBRATION_COUNT 1000
-#define ADC_TO_AMP 17.745//24.8181818
+#define ADC_TO_AMP 28//17.745//24.8181818
 
 void ADC_init(void);
 uint16_t ADC_read(uint8_t n);
